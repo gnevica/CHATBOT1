@@ -109,7 +109,7 @@ Instructions:
     # GPT call
     try:
         response = client.chat.completions.create(
-            model="openrouter/gpt-4",
+            model="openai/gpt-4",
             messages=[{"role": "user", "content": full_prompt}],
             temperature=0.2
         )
