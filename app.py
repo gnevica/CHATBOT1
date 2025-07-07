@@ -16,13 +16,13 @@ if "chat_history" not in st.session_state:
 if "df" not in st.session_state:
     st.session_state.df = None
 
-# ✅ Create OpenAI (OpenRouter) client
+# ✅ OpenAI client for OpenRouter
 client = OpenAI(
     api_key=st.secrets["OPENROUTER"]["api_key"],
     base_url="https://openrouter.ai/api/v1"
 )
 
-# Intent detection
+# Detect user intent
 def detect_intent(query):
     q = query.lower()
     if any(x in q for x in ["forecast", "predict", "next year", "future"]):
@@ -32,7 +32,7 @@ def detect_intent(query):
     else:
         return "general"
 
-# Fuzzy column name correction
+# Fix column names using fuzzy match
 def correct_column_names(query, columns):
     words = query.split()
     corrected = []
@@ -44,7 +44,7 @@ def correct_column_names(query, columns):
             corrected.append(word)
     return " ".join(corrected)
 
-# Title and Upload
+# Upload section
 st.title("🤖 Chat with your CSV (OpenRouter)")
 uploaded_file = st.file_uploader("Upload your CSV", type=["csv"])
 
@@ -55,7 +55,7 @@ if uploaded_file:
 
 df = st.session_state.df
 
-# Chat UI
+# Chat section
 st.subheader("💬 Ask something about your data")
 for msg in st.session_state.chat_history:
     st.markdown(f"**You:** {msg['user']}")
@@ -68,7 +68,7 @@ if user_input and df is not None:
     intent = detect_intent(corrected_query)
     column_info = "\n".join([f"- {col}: {str(df[col].dtype)}" for col in df.columns])
 
-    # Build chat history into prompt
+    # Chat history for context
     history_prompt = ""
     for msg in st.session_state.chat_history:
         history_prompt += f"User: {msg['user']}\nAssistant: {msg['bot']}\n"
@@ -80,11 +80,14 @@ if user_input and df is not None:
     else:
         task_instruction = "Use pandas for data analysis. Store tabular output in `result`."
 
+    # Limit data sample to avoid overflow
+    data_sample = df.sample(min(len(df), 3), random_state=1).to_csv(index=False)
+
     # Final prompt
     full_prompt = f"""
 You are a helpful assistant that analyzes CSV datasets.
 Sample Data:
-{df.head(5).to_csv(index=False)}
+{data_sample}
 
 Column Info:
 {column_info}
@@ -100,17 +103,25 @@ Instructions:
 - Only return executable Python code.
 """
 
-    # GPT via OpenRouter (OpenAI v1 client)
-    response = client.chat.completions.create(
-        model="openrouter/gpt-4",
-        messages=[{"role": "user", "content": full_prompt}],
-        temperature=0.2
-    )
+    # DEBUG: Show prompt length
+    st.text(f"Prompt length: {len(full_prompt)} characters")
 
-    code = response.choices[0].message.content
+    # GPT call
+    try:
+        response = client.chat.completions.create(
+            model="openrouter/gpt-4",
+            messages=[{"role": "user", "content": full_prompt}],
+            temperature=0.2
+        )
+        code = response.choices[0].message.content
+    except Exception as e:
+        st.error(f"❌ GPT API request failed: {e}")
+        st.stop()
+
     with st.expander("🧠 GPT-Generated Code"):
         st.code(code, language="python")
 
+    # Execute generated code
     try:
         local_env = {"df": df.copy(), "plt": plt, "Prophet": Prophet}
         exec(code, local_env)
@@ -134,14 +145,14 @@ Instructions:
         if not output_response:
             output_response = "Task completed."
 
-        # Add to chat history
+        # Update chat history
         st.session_state.chat_history.append({
             "user": user_input,
             "bot": output_response
         })
 
     except Exception as e:
-        st.error(f"⚠️ Error executing code: {e}")
+        st.error(f"⚠️ Error executing generated code: {e}")
         st.session_state.chat_history.append({
             "user": user_input,
             "bot": f"⚠️ Error: {e}"
