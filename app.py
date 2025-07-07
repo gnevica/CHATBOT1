@@ -100,9 +100,9 @@ Instructions:
 - Only return executable Python code.
 """
 
-    # GPT response via OpenRouter
+    # GPT via OpenRouter (OpenAI v1 client)
     response = client.chat.completions.create(
-        model="openrouter/gpt-4",  # Or try other OpenRouter models
+        model="openrouter/gpt-4",
         messages=[{"role": "user", "content": full_prompt}],
         temperature=0.2
     )
