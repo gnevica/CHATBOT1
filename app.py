@@ -16,8 +16,9 @@ if "chat_history" not in st.session_state:
 if "df" not in st.session_state:
     st.session_state.df = None
 
-# Secure OpenAI key
-openai.api_key = st.secrets["OPENAI"]["api_key"]
+# ✅ Use OpenRouter API key and endpoint
+openai.api_key = st.secrets["OPENROUTER"]["api_key"]
+openai.base_url = "https://openrouter.ai/api/v1"
 
 # Intent detection
 def detect_intent(query):
@@ -42,7 +43,7 @@ def correct_column_names(query, columns):
     return " ".join(corrected)
 
 # Title and Upload
-st.title("🤖 CSV Chatbot with Memory")
+st.title("🤖 CSV Chatbot with Memory (Powered by OpenRouter)")
 uploaded_file = st.file_uploader("Upload your CSV", type=["csv"])
 
 if uploaded_file:
@@ -97,7 +98,7 @@ Instructions:
 """
 
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="openrouter/gpt-4",  # you can also try: "openrouter/meta-llama-3-70b-instruct"
         messages=[{"role": "user", "content": full_prompt}],
         temperature=0.2
     )
@@ -121,23 +122,4 @@ Instructions:
 
         if "result" in local_env:
             st.write(local_env["result"])
-            csv = local_env["result"].to_csv(index=False).encode("utf-8")
-            st.download_button("⬇ Download result as CSV", csv, "result.csv", "text/csv")
-            if not output_response:
-                output_response = "Here's your data result."
-
-        if not output_response:
-            output_response = "Task completed."
-
-        # Save to chat history
-        st.session_state.chat_history.append({
-            "user": user_input,
-            "bot": output_response
-        })
-
-    except Exception as e:
-        st.error(f"Execution error: {e}")
-        st.session_state.chat_history.append({
-            "user": user_input,
-            "bot": f"⚠️ Error: {e}"
-        })
+            csv =
