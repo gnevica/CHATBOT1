@@ -16,11 +16,14 @@ if "chat_history" not in st.session_state:
 if "df" not in st.session_state:
     st.session_state.df = None
 
-# ✅ OpenAI client for OpenRouter
+from openai import OpenAI
+import streamlit as st
+
+# ✅ Initialize OpenAI Client using official base
 client = OpenAI(
-    api_key=st.secrets["OPENROUTER"]["api_key"],
-    base_url="https://openrouter.ai/api/v1"
+    api_key=st.secrets["api_key"]  # You've already stored this
 )
+
 
 # Detect user intent
 def detect_intent(query):
