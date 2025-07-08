@@ -16,13 +16,13 @@ if "chat_history" not in st.session_state:
 if "df" not in st.session_state:
     st.session_state.df = None
 
+
+
 from openai import OpenAI
 import streamlit as st
 
-# ✅ Initialize OpenAI Client using official base
-client = OpenAI(
-    api_key=st.secrets["api_key"]  # You've already stored this
-)
+client = OpenAI(api_key=st.secrets["api_key"])
+
 
 
 # Detect user intent
