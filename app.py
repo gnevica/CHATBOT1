@@ -113,7 +113,7 @@ Instructions:
               messages=[{"role": "user", "content": full_prompt}],
               temperature=0.2,
               max_tokens=500
-)
+
 
         )
         code = response.choices[0].message.content
