@@ -112,7 +112,7 @@ Instructions:
     # GPT call
     try:
         response = client.chat.completions.create(
-              model="openai/gpt-4",
+              model="openai/gpt-4o",
               messages=[{"role": "user", "content": full_prompt}],
               temperature=0.2,
 
