@@ -109,9 +109,12 @@ Instructions:
     # GPT call
     try:
         response = client.chat.completions.create(
-            model="openai/gpt-4",
-            messages=[{"role": "user", "content": full_prompt}],
-            temperature=0.2
+           model="openai/gpt-3.5-turbo",  # cheaper
+           messages=[{"role": "user", "content": full_prompt}],
+           temperature=0.2,
+           max_tokens=300
+)
+
         )
         code = response.choices[0].message.content
     except Exception as e:
