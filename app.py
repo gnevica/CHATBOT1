@@ -21,7 +21,11 @@ if "df" not in st.session_state:
 from openai import OpenAI
 import streamlit as st
 
-client = OpenAI(api_key=st.secrets["api_key"])
+client = OpenAI(
+    api_key=st.secrets["openai"]["api_key"],  # ✅ correct access
+    base_url="https://api.openai.com/v1"      # ✅ official base URL
+)
+
 
 
 
