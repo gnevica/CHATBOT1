@@ -109,10 +109,9 @@ Instructions:
     # GPT call
     try:
         response = client.chat.completions.create(
-              model="google/gemma-3-27b-it",
+              model="openai/gpt-4",
               messages=[{"role": "user", "content": full_prompt}],
               temperature=0.2,
-              max_tokens=500
 
 
         )
