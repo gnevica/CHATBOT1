@@ -109,12 +109,10 @@ Instructions:
     # GPT call
     try:
         response = client.chat.completions.create(
-           model="openai/gpt-3.5-turbo",  # cheaper
-           messages=[{"role": "user", "content": full_prompt}],
-           temperature=0.2,
-           max_tokens=300
-)
-
+            model="openai/gpt-3.5-turbo",  # ✅ Cheaper model for OpenRouter
+            messages=[{"role": "user", "content": full_prompt}],
+            temperature=0.2,
+            max_tokens=300  # ✅ Limit to avoid credit error
         )
         code = response.choices[0].message.content
     except Exception as e:
@@ -160,3 +158,5 @@ Instructions:
             "user": user_input,
             "bot": f"⚠️ Error: {e}"
         })
+
+
